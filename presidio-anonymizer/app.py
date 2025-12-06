@@ -7,7 +7,7 @@ from pathlib import Path
 
 from flask import Flask, Response, jsonify, request
 from presidio_anonymizer import AnonymizerEngine, DeanonymizeEngine
-from presidio_anonymizer.entities import InvalidParamError
+from presidio_anonymizer.entities import InvalidParamError, OperatorConfig
 from presidio_anonymizer.services.app_entities_convertor import AppEntitiesConvertor
 from werkzeug.exceptions import BadRequest, HTTPException
 
@@ -44,6 +44,14 @@ class Server:
         def health() -> str:
             """Return basic health probe result."""
             return "Presidio Anonymizer service is up"
+
+        @self.app.route("/genz-preview")
+        def genz_preview() -> str:
+            return jsonify({
+                "example": "Call Emily at 577-988-1234",
+                "example output": "Call GOAT at vibe check",
+                "description": "Example output of the genz anonymizer."
+            })
 
         @self.app.route("/anonymize", methods=["POST"])
         def anonymize() -> Response:
@@ -95,6 +103,27 @@ class Server:
         def deanonymizers():
             """Return a list of supported deanonymizers."""
             return jsonify(self.deanonymize.get_deanonymizers())
+
+        @self.app.route("/genz", methods=["POST"])
+        def genz():
+            content = request.get_json()
+            if not content:
+                raise BadRequest("Invalid request json")
+            anonymizer_config = {}
+
+            anonymizer_results = AppEntitiesConvertor.analyzer_results_from_json(
+                content.get("analyzer_results")
+            )
+
+            for result in anonymizer_results:
+                anonymizer_config[result.entity_type] = OperatorConfig("genz")
+
+            anonymizer_result = self.anonymizer.anonymize(
+                text=content.get("text", ""),
+                analyzer_results=anonymizer_results,
+                operators=anonymizer_config,
+            )
+            return Response(anonymizer_result.to_json(), mimetype="application/json")
 
         @self.app.errorhandler(InvalidParamError)
         def invalid_param(err):
