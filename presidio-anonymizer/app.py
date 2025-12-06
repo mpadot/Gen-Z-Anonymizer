@@ -105,26 +105,26 @@ class Server:
             """Return a list of supported deanonymizers."""
             return jsonify(self.deanonymize.get_deanonymizers())
 
-        ## create a new endpoint for genz that uses teh POST method so it can take in json
+        #create a new endpoint for genz that uses teh POST method so it can take in json
         @self.app.route("/genz", methods = ["POST"])
         def genz():
             ##converts the request json into a python dictionary
             content = request.get_json()
             if not content:
                 raise BadRequest("Invalid request json")
-            ##This creates an empty dictionary to hold which operator to use for each entity type
+            #This creates an empty dictionary to hold which operator to use for each entity type
             anonymizer_config = {}
 
-            ##takes analyzer_results from json, then converts it from json to python objects so it can be anonymized
+            #takes analyzer_results from json, then converts it from json to python objects so it can be anonymized
             anonymizer_results = AppEntitiesConvertor.analyzer_results_from_json(
                 content.get("analyzer_results")
             )
 
-            ##Loop throuch each entity that was found and say use the genz operator to anonymize this type
+            #Loop throuch each entity that was found and say use the genz operator to anonymize this type
             for result in anonymizer_results:
                 anonymizer_config[result.entity_type] = OperatorConfig("genz")
 
-            ##Calls the anonymizer engine to anonymize the text using the genz operator for all entities found
+            #Calls the anonymizer engine to anonymize the text using the genz operator for all entities found
             anonymizer_result = self.anonymizer.anonymize(  
                 text=content.get("text", ""),
                 analyzer_results=anonymizer_results,
