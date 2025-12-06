@@ -44,7 +44,7 @@ class Server:
         def health() -> str:
             """Return basic health probe result."""
             return "Presidio Anonymizer service is up"
-        
+
         @self.app.route("/genz-preview")
         def genz_preview() -> str:
             return jsonify({
@@ -118,7 +118,7 @@ class Server:
             for result in anonymizer_results:
                 anonymizer_config[result.entity_type] = OperatorConfig("genz")
 
-            anonymizer_result = self.anonymizer.anonymize(  
+            anonymizer_result = self.anonymizer.anonymize(
                 text=content.get("text", ""),
                 analyzer_results=anonymizer_results,
                 operators=anonymizer_config,
