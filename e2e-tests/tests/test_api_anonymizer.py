@@ -3,7 +3,7 @@ import json
 import pytest
 
 from common.assertions import equal_json_strings
-from common.methods import anonymize, anonymizers, deanonymize
+from common.methods import anonymize, anonymizers, deanonymize, genz
 
 
 @pytest.mark.api
@@ -402,10 +402,8 @@ def test_overlapping_keep_both():
     assert response_status == 200
     assert equal_json_strings(expected_response, response_content)
 
-@pytest.mark.api
-def test_given_anonymize_called_with_genz_then_expected_valid_response_returned():
-    request_body = """
-    {
+def test_given_anonymize_called_with_genz_then_expected_valid_response_returned(self):
+    request_body = {
         "text": "Please contact Emily Carter at 734-555-9284 if you have questions about the workshop registration.",
         "analyzer_results": [
             {
@@ -422,8 +420,10 @@ def test_given_anonymize_called_with_genz_then_expected_valid_response_returned(
             }
         ]
     }
-    """
-
-    response = anonymize_genz = anonymize(request_body)
-
-    assert response_status == 200
+    
+    response = genz(request_body) 
+    
+    assert response.status_code == 200
+    response_json = response.json()
+    assert "text" in response_json
+    assert "items" in response_json
