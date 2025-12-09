@@ -20,8 +20,8 @@ def anonymize(data):
     return response.status_code, response.content
 
 def genz(request_body):
-    url = f"{ANONYMIZER_BASE_URL}/genz"
-    return requests.post(url, json=request_body)
+    response = requests.post(f"{ANONYMIZER_URL}/genz", data=request_body, headers=HEADERS)
+    return response.status_code, response.content
 
 
 def anonymizers():
