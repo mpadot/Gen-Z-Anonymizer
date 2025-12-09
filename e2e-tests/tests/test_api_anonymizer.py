@@ -427,3 +427,14 @@ def test_given_anonymize_called_with_genz_then_expected_valid_response_returned(
     response_status, response_content = genz(request_body)
     
     assert response_status == 200
+    
+    # Parse and validate structure without checking random text
+    response_json = json.loads(response_content)
+    
+    assert "text" in response_json
+    assert "items" in response_json
+    assert len(response_json["items"]) == 2
+    
+    # Verify operators are genz
+    for item in response_json["items"]:
+        assert item["operator"] == "genz"
