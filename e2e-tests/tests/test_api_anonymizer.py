@@ -430,13 +430,10 @@ def test_given_anonymize_called_with_genz_then_expected_valid_response_returned(
 
     response_json = json.loads(response_content)
     
-
     assert "text" in response_json
     assert "items" in response_json
     
-   
     assert len(response_json["items"]) == 2  
-    
     
     for item in response_json["items"]:
         assert "start" in item
@@ -446,7 +443,11 @@ def test_given_anonymize_called_with_genz_then_expected_valid_response_returned(
         assert "operator" in item
         assert item["operator"] == "genz"  
     
- 
     entity_types = {item["entity_type"] for item in response_json["items"]}
     assert "PERSON" in entity_types
     assert "PHONE_NUMBER" in entity_types
+    
+    original_text = "Please contact Emily Carter at 734-555-9284 if you have questions about the workshop registration."
+    assert response_json["text"] != original_text
+    assert "Emily Carter" not in response_json["text"]
+    assert "734-555-9284" not in response_json["text"]
